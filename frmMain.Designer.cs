@@ -53,7 +53,7 @@
             this.tsbQuit});
             this.tsTools.Location = new System.Drawing.Point(0, 0);
             this.tsTools.Name = "tsTools";
-            this.tsTools.Size = new System.Drawing.Size(284, 25);
+            this.tsTools.Size = new System.Drawing.Size(300, 25);
             this.tsTools.TabIndex = 0;
             this.tsTools.Text = "toolStrip1";
             // 
@@ -106,7 +106,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(300, 261);
             this.Controls.Add(this.tsTools);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;

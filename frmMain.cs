@@ -50,7 +50,7 @@ namespace MLocati.ServicesControl
                 if (prev == null)
                 {
                     cur.Location = new Point(5, this.tsbQuit.Height + 5);
-                    cur.Width = this.Width - 10;
+                    cur.Width = this.Width - 25;
                 }
                 else
                 {
