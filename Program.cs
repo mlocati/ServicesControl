@@ -36,13 +36,6 @@ namespace MLocati.ServicesControl
             Program.ReloadServices();
             if (Program.Services.Count == 0)
             {
-                foreach (ServiceController sc in ServiceController.GetServices())
-                {
-                    if (sc.DisplayName.Contains("Apache"))
-                    {
-                        Program.Services.Add(sc);
-                    }
-                }
                 using (frmSetServices f = new frmSetServices())
                 {
                     f.StartPosition = FormStartPosition.CenterScreen;
