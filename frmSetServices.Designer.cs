@@ -82,6 +82,7 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(200, 115);
             this.Name = "frmSetServices";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Set services - ServicesControl";
             this.ResumeLayout(false);
 
