@@ -11,6 +11,7 @@ namespace MLocati.ServicesControl
         public frmSetServices()
         {
             InitializeComponent();
+            this.Icon = Program.Icon;
             List<Service> services = new List<Service>();
             foreach (ServiceController sc in ServiceController.GetServices())
             {

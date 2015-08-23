@@ -17,7 +17,7 @@ namespace MLocati.ServicesControl
         public frmMain()
         {
             this.InitializeComponent();
-            this.trayIco.Icon = this.Icon;
+            this.trayIco.Icon = this.Icon = Program.Icon;
             this.BuildServicesList();
         }
 

@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.ServiceProcess;
 using System.Windows.Forms;
+using System.Drawing;
+using System.Reflection;
 
 namespace MLocati.ServicesControl
 {
@@ -97,7 +99,19 @@ namespace MLocati.ServicesControl
                     }
                 }
             }
+        }
 
+        private static Icon _icon = null;
+        public static Icon Icon
+        {
+            get
+            {
+                if (Program._icon == null)
+                {
+                    Program._icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+                }
+                return Program._icon;
+            }
         }
     }
 }
