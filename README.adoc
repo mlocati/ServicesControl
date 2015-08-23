@@ -1,0 +1,12 @@
+= ServiceControl
+:imagesdir: https://raw.githubusercontent.com/mlocati/ServicesControl/master/Screenshots
+
+
+A handy Windows program to control running services.
+
+== Screen shots
+
+image::tray-area.png[Tray area]
+
+image::main-window.png[Main window]
+
