@@ -113,6 +113,7 @@
             this.MinimizeBox = false;
             this.Name = "frmMain";
             this.Text = "ServicesControl";
+            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Shown += new System.EventHandler(this.frmMain_Shown);
             this.tsTools.ResumeLayout(false);
