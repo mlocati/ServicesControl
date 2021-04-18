@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michele Locati")]
 [assembly: AssemblyProduct("ServicesControl")]
-[assembly: AssemblyCopyright("Copyright © Michele Locati 2015")]
+[assembly: AssemblyCopyright("Copyright © Michele Locati 2015-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -15,5 +15,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("bfd7dc94-3a6f-4dea-a388-3bda99821617")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]

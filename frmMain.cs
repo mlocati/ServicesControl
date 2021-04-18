@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Windows.Forms;
 using System.ServiceProcess;
+using System.Windows.Forms;
 
 namespace MLocati.ServicesControl
 {
     public partial class frmMain : Form
     {
-        private List<ucServiceControl> ucControllers;
-
         private bool _shown = false;
         private bool _quitting = false;
 
@@ -21,32 +19,59 @@ namespace MLocati.ServicesControl
             this.BuildServicesList();
         }
 
+        private List<ucServiceControl> getUCControllers()
+        {
+            var result = new List<ucServiceControl>();
+            foreach (var control in this.Controls)
+            {
+                if (control is ucServiceControl)
+                {
+                    result.Add((ucServiceControl)control);
+                }
+            }
+            result.Sort((a, b) => a.Top - b.Top);
+            return result;
+        }
+
         private void BuildServicesList()
         {
             this.SuspendLayout();
-            List<ucServiceControl> controllers = this.ucControllers;
-            this.ucControllers = new List<ucServiceControl>();
-            if (controllers != null)
+            foreach (var uc in this.getUCControllers())
             {
-                foreach (ucServiceControl uc in controllers)
-                {
-                    if (uc != null)
-                    {
-                        if (this.Controls.Contains(uc))
-                        {
-                            this.Controls.Remove(uc);
-                        }
-                        uc.Dispose();
-                    }
-                }
+                this.Controls.Remove(uc);
+                uc.Dispose();
             }
             ucServiceControl prev = null;
             int tabIndex = -1;
-            foreach (ServiceController sc in Program.Services)
+            ServiceController[] systemServices = null;
+            foreach (var config in Program.ConfigManager.ServiceConfigs)
             {
-                ucServiceControl cur = new ucServiceControl(sc);
+                ServiceDriver driver = null;
+                if (config is SystemServiceConfig)
+                {
+                    if (systemServices == null)
+                    {
+                        systemServices = ServiceController.GetServices();
+                    }
+                    foreach (var systemService in systemServices)
+                    {
+                        if (systemService.ServiceName.Equals(config.ServiceName))
+                        {
+                            driver = new SystemServiceDriver(systemService);
+                            break;
+                        }
+                    }
+                }
+                else if (config is ServiceLikeServiceConfig)
+                {
+                    driver = new ServiceLikeServiceDriver((ServiceLikeServiceConfig)config);
+                }
+                if (driver == null)
+                {
+                    continue;
+                }
+                ucServiceControl cur = new ucServiceControl(driver);
                 cur.TabIndex = ++tabIndex;
-                this.Controls.Add(cur);
                 if (prev == null)
                 {
                     cur.Location = new Point(5, this.tsbQuit.Height + 5);
@@ -58,7 +83,7 @@ namespace MLocati.ServicesControl
                     cur.Size = prev.Size;
                 }
                 cur.Visible = true;
-                this.ucControllers.Add(cur);
+                this.Controls.Add(cur);
                 prev = cur;
             }
             this.tsTools.TabIndex = ++tabIndex;
@@ -79,9 +104,10 @@ namespace MLocati.ServicesControl
                 if (this._trayed != value)
                 {
                     this._trayed = value;
+                    var controllers = this.getUCControllers();
                     if (!this._trayed)
                     {
-                        foreach (ucServiceControl uc in this.ucControllers)
+                        foreach (var uc in controllers)
                         {
                             uc.RefreshStatus();
                         }
@@ -96,7 +122,7 @@ namespace MLocati.ServicesControl
                         this.Show();
                         this.trayIco.Visible = false;
                     }
-                    foreach (ucServiceControl uc in this.ucControllers)
+                    foreach (var uc in controllers)
                     {
                         uc.Active = !this._trayed;
                     }
@@ -121,7 +147,8 @@ namespace MLocati.ServicesControl
         {
             if (this._shown)
             {
-                this.Height = this.Bounds.Height - this.ClientSize.Height + this.ucControllers[this.ucControllers.Count - 1].Bottom + 10;
+                var controllers = this.getUCControllers();
+                this.Height = this.Bounds.Height - this.ClientSize.Height + controllers[controllers.Count - 1].Bottom + 10;
             }
         }
         private void SetPosition()

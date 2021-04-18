@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.ServiceProcess;
+using System.Windows.Forms;
 
 namespace MLocati.ServicesControl
 {
@@ -16,13 +16,13 @@ namespace MLocati.ServicesControl
             set
             { this.tmrUpdate.Enabled = value; }
         }
-        private readonly ServiceController Controller;
-        public ucServiceControl(ServiceController controller)
+        private readonly ServiceDriver Driver;
+        public ucServiceControl(ServiceDriver driver)
         {
             InitializeComponent();
             this.IsRestarting = false;
-            this.Controller = controller;
-            this.lblServiceName.Text = this.Controller.DisplayName;
+            this.Driver = driver;
+            this.lblServiceName.Text = this.Driver.DisplayName;
             this.RefreshStatus();
             this.Active = true;
         }
@@ -33,7 +33,7 @@ namespace MLocati.ServicesControl
                 this.Invoke(new Action(this.RefreshStatus), null);
                 return;
             }
-            this.Controller.Refresh();
+            this.Driver.Refresh();
             string statusText = null;
             Dictionary<Button, bool> okb = new Dictionary<Button, bool>();
             okb.Add(this.btnStart, false);
@@ -43,7 +43,7 @@ namespace MLocati.ServicesControl
             ServiceControllerStatus? status;
             try
             {
-                status = this.Controller.Status;
+                status = this.Driver.Status;
             }
             catch (Exception x)
             {
@@ -66,8 +66,8 @@ namespace MLocati.ServicesControl
                         break;
                     case ServiceControllerStatus.Running:
                         statusText = "Running";
-                        okb[this.btnRestart] = okb[this.btnStop] = this.Controller.CanStop;
-                        okb[this.btnPause] = this.Controller.CanPauseAndContinue;
+                        okb[this.btnRestart] = okb[this.btnStop] = this.Driver.CanStop;
+                        okb[this.btnPause] = this.Driver.CanPauseAndContinue;
                         break;
                     case ServiceControllerStatus.StartPending:
                         statusText = "Starting...";
@@ -99,22 +99,22 @@ namespace MLocati.ServicesControl
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            this.DoAction(new ServiceControllerStatus[] { ServiceControllerStatus.Stopped, ServiceControllerStatus.Paused }, new Action[] { this.Controller.Start, this.Controller.Continue });
+            this.DoAction(new ServiceControllerStatus[] { ServiceControllerStatus.Stopped, ServiceControllerStatus.Paused }, new Action[] { this.Driver.Start, this.Driver.Continue });
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            this.DoAction(new ServiceControllerStatus[] { ServiceControllerStatus.Running, ServiceControllerStatus.Paused }, this.Controller.Stop);
+            this.DoAction(new ServiceControllerStatus[] { ServiceControllerStatus.Running, ServiceControllerStatus.Paused }, this.Driver.Stop);
         }
 
         private void btnPause_Click(object sender, EventArgs e)
         {
-            this.DoAction(ServiceControllerStatus.Running, this.Controller.Pause);
+            this.DoAction(ServiceControllerStatus.Running, this.Driver.Pause);
         }
 
         private void btnRestart_Click(object sender, EventArgs e)
         {
-            this.DoAction(ServiceControllerStatus.Running, this.Controller.Stop, true);
+            this.DoAction(ServiceControllerStatus.Running, this.Driver.Stop, true);
         }
 
         private void DoAction(ServiceControllerStatus status, Action action)
@@ -142,10 +142,10 @@ namespace MLocati.ServicesControl
         {
             if (this.bgwActioner.IsBusy) return;
             this.IsRestarting = isRestarting;
-            this.Controller.Refresh();
+            this.Driver.Refresh();
             for (int i = 0; i < statuses.Length; i++)
             {
-                if (statuses[i] == this.Controller.Status)
+                if (statuses[i] == this.Driver.Status)
                 {
                     try
                     {
@@ -193,16 +193,16 @@ namespace MLocati.ServicesControl
                 if (this.IsRestarting)
                 {
                     this.RefreshStatus();
-                    this.Controller.Refresh();
-                    if (this.Controller.Status == ServiceControllerStatus.StopPending)
+                    this.Driver.Refresh();
+                    if (this.Driver.Status == ServiceControllerStatus.StopPending)
                     {
                         try
-                        { this.Controller.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 0, 10)); }
+                        { this.Driver.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 0, 10)); }
                         catch
                         { }
-                        this.Controller.Refresh();
+                        this.Driver.Refresh();
                     }
-                    this.DoAction(ServiceControllerStatus.Stopped, this.Controller.Start);
+                    this.DoAction(ServiceControllerStatus.Stopped, this.Driver.Start);
                     return;
                 }
             }

@@ -1,17 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.ServiceProcess;
-using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace MLocati.ServicesControl
 {
     static class Program
     {
-        public static List<ServiceController> Services;
+        public static ServiceConfigManager ConfigManager;
+
+        private static Icon _icon = null;
+        public static Icon Icon
+        {
+            get
+            {
+                if (Program._icon == null)
+                {
+                    Program._icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+                }
+                return Program._icon;
+            }
+        }
 
         [STAThread]
         static void Main(string[] args)
@@ -33,77 +44,22 @@ namespace MLocati.ServicesControl
                 }
                 return;
             }
-            Program.ReloadServices();
-            if (Program.Services.Count == 0)
+            Program.ConfigManager = new ServiceConfigManager(Path.ChangeExtension(Application.ExecutablePath, ".txt"));
+            if (Program.ConfigManager.ServiceConfigs.Length == 0)
             {
                 using (frmSetServices f = new frmSetServices())
                 {
                     f.StartPosition = FormStartPosition.CenterScreen;
                     f.ShowDialog();
-                    if (Program.Services.Count == 0)
+                    if (Program.ConfigManager.ServiceConfigs.Length == 0)
                     {
                         return;
                     }
                 }
-                return;
             }
             using (frmMain frm = new frmMain())
             {
                 Application.Run(frm);
-            }
-            foreach (ServiceController scd in Program.Services)
-            {
-                try
-                { scd.Dispose(); }
-                catch
-                { }
-            }
-        }
-
-        public static string ConfigFileName
-        {
-            get
-            {
-                return Path.ChangeExtension(Application.ExecutablePath, ".txt");
-            }
-        }
-
-        public static void ReloadServices()
-        {
-            Program.Services = new List<ServiceController>();
-            string configFilename = Program.ConfigFileName;
-            if (File.Exists(configFilename))
-            {
-                using (FileStream configStream = new FileStream(configFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    using (StreamReader configReader = new StreamReader(configStream, true))
-                    {
-                        string line;
-                        while ((line = configReader.ReadLine()) != null)
-                        {
-                            string[] possibleNames = line.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                            if (possibleNames.Length > 0)
-                            {
-                                ServiceController sc = WindowsServices.GetServiceControl(possibleNames);
-                                if (sc != null)
-                                    Program.Services.Add(sc);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private static Icon _icon = null;
-        public static Icon Icon
-        {
-            get
-            {
-                if (Program._icon == null)
-                {
-                    Program._icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
-                }
-                return Program._icon;
             }
         }
     }

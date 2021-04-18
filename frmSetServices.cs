@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
+using System.Drawing;
 using System.ServiceProcess;
+using System.Windows.Forms;
 
 namespace MLocati.ServicesControl
 {
@@ -12,114 +12,160 @@ namespace MLocati.ServicesControl
         {
             InitializeComponent();
             this.Icon = Program.Icon;
-            List<Service> services = new List<Service>();
-            foreach (ServiceController sc in ServiceController.GetServices())
-            {
-                services.Add(new Service(sc));
-            }
-            services.Sort((a, b) => a.ToString().CompareTo(b.ToString()));
-            bool someChecked = false;
-            foreach (Service s in services)
-            {
-                someChecked = someChecked || s.CurrentlyConfigured;
-                this.clbServices.Items.Add(s, s.CurrentlyConfigured);
-            }
-            this.btnOk.Enabled = someChecked;
+            this.PopulateSystemServices();
+            this.PopulateCustomServices();
         }
-        private class Service
+
+        private void PopulateSystemServices()
         {
-            private ServiceController _sc;
-            private string _text;
-            private bool _currentlyConfigured;
-            public Service(ServiceController sc)
+            var configured = new List<string>();
+            foreach (var config in Program.ConfigManager.ServiceConfigs)
             {
-                this._sc = sc;
-                this._text = string.Format("{0} [{1}]", sc.DisplayName, sc.ServiceName);
-                //this._currentlyConfigured = (Program.Services != null && Program.Services.Contains(sc));
-                this._currentlyConfigured = false;
-                if (Program.Services != null)
+                if (config is SystemServiceConfig)
                 {
-                    foreach (ServiceController s in Program.Services)
-                    {
-                        if (s.ServiceName == sc.ServiceName)
-                        {
-                            this._currentlyConfigured = true;
-                            break;
-                        }
-                    }
+                    configured.Add(config.ServiceName.ToLower());
                 }
             }
-            public bool CurrentlyConfigured
+            var services = ServiceController.GetServices();
+            Array.Sort(services, (a, b) => string.Compare(a.ServiceName, b.ServiceName, true));
+            foreach (var service in services)
             {
-                get
+                this.clbServices.Items.Add(service.ServiceName, configured.Contains(service.ServiceName.ToLower()));
+            }
+        }
+
+        private void PopulateCustomServices()
+        {
+            foreach (var config in Program.ConfigManager.ServiceConfigs)
+            {
+                if (config is ServiceLikeServiceConfig)
                 {
-                    return this._currentlyConfigured;
+                    this.AddCustomApp((ServiceLikeServiceConfig)config);
                 }
             }
-            public override string ToString()
+        }
+        private void lnkAddCustom_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var uc = this.AddCustomApp();
+            uc.txtName.Focus();
+        }
+
+        private ucServiceLikeConfig AddCustomApp()
+        {
+            return this.AddCustomApp(null);
+        }
+        private ucServiceLikeConfig AddCustomApp(ServiceLikeServiceConfig config)
+        {
+            ucServiceLikeConfig uc;
+            var top = 0;
+            var tabIndex = 0;
+            foreach (var control in this.pnlCustom.Controls)
             {
-                return this._text;
-            }
-            public ServiceController ServiceController
-            {
-                get
+                if (control is ucServiceLikeConfig)
                 {
-                    return this._sc;
+                    uc = (ucServiceLikeConfig)control;
+                    top = Math.Max(top, uc.Bottom);
+                    tabIndex = Math.Max(tabIndex, uc.TabIndex + 1);
                 }
             }
+            uc = new ucServiceLikeConfig(config);
+            uc.TabIndex = ++tabIndex;
+            this.pnlCustom.Controls.Add(uc);
+            uc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            uc.Location = new Point(0, top);
+            uc.Size = new Size(this.pnlCustom.Width, uc.MinimumSize.Height);
+            uc.AskRemove += this.RemoveCustomApp;
+            return uc;
+        }
+
+        private void RemoveCustomApp(object sender, EventArgs e)
+        {
+            var uc = sender as ucServiceLikeConfig;
+            if (uc == null)
+            {
+                return;
+            }
+            var ucAll = new List<ucServiceLikeConfig>();
+            foreach (var control in this.pnlCustom.Controls)
+            {
+                if (control is ucServiceLikeConfig)
+                {
+                    ucAll.Add((ucServiceLikeConfig)control);
+                }
+            }
+            ucAll.Sort((a, b) => a.Top - b.Top);
+            var ucIndex = ucAll.IndexOf(uc);
+            if (ucIndex < 0)
+            {
+                return;
+            }
+            this.pnlCustom.Controls.Remove(uc);
+            for (var index = ucIndex + 1; index < ucAll.Count; index++)
+            {
+                ucAll[index].Top = ucAll[index - 1].Top;
+            }
+            uc.Dispose();
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            StringBuilder sb = null;
-            foreach (Service s in this.SelectedServices)
+            var namesLC = new List<string>();
+            var configs = new List<ServiceConfig>();
+            foreach (var item in this.clbServices.CheckedItems)
             {
-                if (sb == null)
+                var serviceName = item as string;
+                if (serviceName == null)
                 {
-                    sb = new StringBuilder();
+                    continue;
                 }
-                sb.AppendLine(s.ServiceController.ServiceName);
+                configs.Add(new SystemServiceConfig(serviceName));
+                namesLC.Add(serviceName.ToLower());
             }
-            if (sb == null)
+            foreach (var uc in this.pnlCustom.Controls)
             {
+                var ucConfig = uc as ucServiceLikeConfig;
+                if (ucConfig == null)
+                {
+                    continue;
+                }
+                ServiceLikeServiceConfig config;
+                try
+                {
+                    config = ucConfig.GetConfig();
+                }
+                catch (ucServiceLikeConfig.ConfigException x)
+                {
+                    this.tcTabs.SelectedTab = this.tpCustom;
+                    x.Control.Focus();
+                    MessageBox.Show(this, x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (namesLC.Contains(config.ServiceName.ToLower()))
+                {
+                    this.tcTabs.SelectedTab = this.tpCustom;
+                    ucConfig.txtName.Focus();
+                    MessageBox.Show(this, $"The name '{config.ServiceName}' is duplicated: please choose another one.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                configs.Add(config);
+                namesLC.Add(config.ServiceName.ToLower());
+            }
+            if (configs.Count == 0)
+            {
+                MessageBox.Show(this, "Please specify at least one service", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            System.IO.File.WriteAllText(Program.ConfigFileName, sb.ToString(), Encoding.ASCII);
-            Program.ReloadServices();
+            configs.Sort((a, b) => string.Compare(a.ServiceName, b.ServiceName));
+            try
+            {
+                Program.ConfigManager.Save(configs.ToArray());
+            }
+            catch (Exception x)
+            {
+                MessageBox.Show(this, x.Message, "Error saving configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             this.DialogResult = DialogResult.OK;
-        }
-        private List<Service> SelectedServices
-        {
-            get
-            {
-                List<Service> current = new List<Service>(this.clbServices.CheckedItems.Count);
-                foreach (Service s in this.clbServices.CheckedItems)
-                {
-                    current.Add(s);
-                }
-                return current;
-            }
-        }
-        private void clbServices_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            List<Service> current = this.SelectedServices;
-            Service item = (Service)this.clbServices.Items[e.Index];
-            switch (e.NewValue)
-            {
-                case CheckState.Checked:
-                    if (!current.Contains(item))
-                    {
-                        current.Add(item);
-                    }
-                    break;
-                case CheckState.Unchecked:
-                    if (current.Contains(item))
-                    {
-                        current.Remove(item);
-                    }
-                    break;
-            }
-            this.btnOk.Enabled = current.Count > 0;
         }
     }
 }
