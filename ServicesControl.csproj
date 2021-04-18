@@ -67,6 +67,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmProgramOutputViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmProgramOutputViewer.Designer.cs">
+      <DependentUpon>frmProgramOutputViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramOutput.cs" />
     <Compile Include="ServiceDriver.cs" />
     <Compile Include="ServiceConfig.cs" />
     <Compile Include="ServiceConfigManager.cs" />
@@ -102,6 +109,9 @@
     <Compile Include="WindowsServices.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmProgramOutputViewer.resx">
+      <DependentUpon>frmProgramOutputViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmSetServices.resx">
       <DependentUpon>frmSetServices.cs</DependentUpon>

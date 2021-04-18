@@ -38,6 +38,7 @@
             this.btnStop = new System.Windows.Forms.Button();
             this.btnRestart = new System.Windows.Forms.Button();
             this.btnPause = new System.Windows.Forms.Button();
+            this.lnkServiceName = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // lblServiceName
@@ -56,7 +57,7 @@
             this.lblServiceStatus.Location = new System.Drawing.Point(3, 15);
             this.lblServiceStatus.Name = "lblServiceStatus";
             this.lblServiceStatus.Size = new System.Drawing.Size(83, 13);
-            this.lblServiceStatus.TabIndex = 1;
+            this.lblServiceStatus.TabIndex = 2;
             this.lblServiceStatus.Text = "lblServiceStatus";
             // 
             // tmrUpdate
@@ -76,7 +77,7 @@
             this.btnStart.Location = new System.Drawing.Point(183, 4);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(24, 23);
-            this.btnStart.TabIndex = 2;
+            this.btnStart.TabIndex = 3;
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
@@ -88,7 +89,7 @@
             this.btnStop.Location = new System.Drawing.Point(206, 4);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(24, 23);
-            this.btnStop.TabIndex = 3;
+            this.btnStop.TabIndex = 4;
             this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
@@ -100,7 +101,7 @@
             this.btnRestart.Location = new System.Drawing.Point(252, 4);
             this.btnRestart.Name = "btnRestart";
             this.btnRestart.Size = new System.Drawing.Size(24, 23);
-            this.btnRestart.TabIndex = 5;
+            this.btnRestart.TabIndex = 6;
             this.btnRestart.UseVisualStyleBackColor = true;
             this.btnRestart.Click += new System.EventHandler(this.btnRestart_Click);
             // 
@@ -112,14 +113,26 @@
             this.btnPause.Location = new System.Drawing.Point(229, 4);
             this.btnPause.Name = "btnPause";
             this.btnPause.Size = new System.Drawing.Size(24, 23);
-            this.btnPause.TabIndex = 4;
+            this.btnPause.TabIndex = 5;
             this.btnPause.UseVisualStyleBackColor = true;
             this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
+            // 
+            // lnkServiceName
+            // 
+            this.lnkServiceName.AutoSize = true;
+            this.lnkServiceName.Location = new System.Drawing.Point(136, 4);
+            this.lnkServiceName.Name = "lnkServiceName";
+            this.lnkServiceName.Size = new System.Drawing.Size(21, 13);
+            this.lnkServiceName.TabIndex = 1;
+            this.lnkServiceName.TabStop = true;
+            this.lnkServiceName.Text = "log";
+            this.lnkServiceName.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkServiceName_LinkClicked);
             // 
             // ucServiceControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lnkServiceName);
             this.Controls.Add(this.btnRestart);
             this.Controls.Add(this.btnPause);
             this.Controls.Add(this.btnStop);
@@ -143,6 +156,6 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnRestart;
         private System.Windows.Forms.Button btnPause;
-
+        private System.Windows.Forms.LinkLabel lnkServiceName;
     }
 }

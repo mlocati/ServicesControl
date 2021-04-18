@@ -5,6 +5,8 @@ namespace MLocati.ServicesControl
 {
     class SystemServiceDriver : ServiceDriver
     {
+        public ProgramOutput Output => null;
+
         public string DisplayName => this.ServiceController.DisplayName;
 
         public ServiceControllerStatus Status => this.ServiceController.Status;

@@ -5,11 +5,14 @@ namespace MLocati.ServicesControl
 {
     public interface ServiceDriver : IDisposable
     {
+        ProgramOutput Output { get; }
+
         string DisplayName { get; }
 
         ServiceControllerStatus Status { get; }
 
         bool CanStop { get; }
+
         bool CanPauseAndContinue { get; }
 
         void Start();

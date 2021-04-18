@@ -8,6 +8,7 @@ namespace MLocati.ServicesControl
 {
     public partial class ucServiceControl : UserControl
     {
+        private frmProgramOutputViewer _outputViewer = null;
         private bool IsRestarting;
         public bool Active
         {
@@ -16,13 +17,23 @@ namespace MLocati.ServicesControl
             set
             { this.tmrUpdate.Enabled = value; }
         }
-        private readonly ServiceDriver Driver;
+        public readonly ServiceDriver Driver;
         public ucServiceControl(ServiceDriver driver)
         {
             InitializeComponent();
             this.IsRestarting = false;
             this.Driver = driver;
-            this.lblServiceName.Text = this.Driver.DisplayName;
+            if (this.Driver.Output == null)
+            {
+                this.lblServiceName.Text = this.Driver.DisplayName;
+                this.lnkServiceName.Hide();
+            }
+            else
+            {
+                this.lnkServiceName.Text = this.Driver.DisplayName;
+                this.lnkServiceName.Location = this.lblServiceName.Location;
+                this.lblServiceName.Hide();
+            }
             this.RefreshStatus();
             this.Active = true;
         }
@@ -206,6 +217,36 @@ namespace MLocati.ServicesControl
                     return;
                 }
             }
+        }
+
+        private void lnkServiceName_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (this.Driver.Output == null)
+            {
+                return;
+            }
+            if (this._outputViewer != null)
+            {
+                this._outputViewer.Focus();
+            } else
+            {
+                this._outputViewer = new frmProgramOutputViewer(this.Driver.Output);
+                this._outputViewer.StartPosition = FormStartPosition.CenterScreen;
+                this._outputViewer.FormClosed += _outputViewer_FormClosed;
+                this._outputViewer.Show(this.ParentForm);
+            }
+        }
+
+        private void _outputViewer_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this._outputViewer = null;
+        }
+
+        public new void Dispose()
+
+        {
+            base.Dispose();
+            this.Driver.Dispose();
         }
     }
 }

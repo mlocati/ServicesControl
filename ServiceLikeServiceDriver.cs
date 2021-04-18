@@ -8,24 +8,8 @@ namespace MLocati.ServicesControl
 {
     class ServiceLikeServiceDriver : ServiceDriver
     {
-        abstract class StdOutErr
-        {
-            public readonly string Chunk;
-            protected StdOutErr(string chunk)
-            {
-                this.Chunk = chunk;
-            }
-        }
-        class StdOut : StdOutErr
-        {
-            public StdOut(string chunk) : base(chunk) { }
-        }
-        class StdErr : StdOutErr
-        {
-            public StdErr(string chunk) : base(chunk) { }
-
-        }
-        private List<StdOutErr> _output = new List<StdOutErr>();
+        private readonly ProgramOutput _output = new ProgramOutput();
+        public ProgramOutput Output => this._output;
 
         [DllImport("kernel32.dll")]
         private static extern bool AttachConsole(UInt32 dwProcessId);
@@ -82,16 +66,24 @@ namespace MLocati.ServicesControl
             process.OutputDataReceived += Process_OutputDataReceived;
             process.ErrorDataReceived += Process_ErrorDataReceived;
             process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             this.Process = process;
         }
 
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            this._output.Add(new StdOut(e.Data));
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                this.Output.Add(e.Data, ProgramOutput.Type.StdOut);
+            }
         }
         private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            this._output.Add(new StdErr(e.Data));
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                this.Output.Add(e.Data, ProgramOutput.Type.StdErr);
+            }
         }
 
         public void Pause()

@@ -209,10 +209,18 @@ namespace MLocati.ServicesControl
                     {
                         this.Trayed = true;
                         e.Cancel = true;
+                        return;
                     }
                     break;
             }
-        }
+            foreach(var controller in this.getUCControllers())
+            {
+                if (controller.Driver is ServiceLikeServiceDriver)
+                {
+                    controller.Driver.Stop();
+                }
+            }
+         }
 
         private void tsbOptions_Click(object sender, EventArgs e)
         {
