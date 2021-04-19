@@ -43,7 +43,6 @@
             // 
             // clbServices
             // 
-            this.clbServices.CheckOnClick = true;
             this.clbServices.Dock = System.Windows.Forms.DockStyle.Fill;
             this.clbServices.FormattingEnabled = true;
             this.clbServices.IntegralHeight = false;
