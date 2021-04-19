@@ -69,7 +69,7 @@ namespace MLocati.ServicesControl
         public void Save(ServiceConfig[] serviceConfigs)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var serviceConfig in ServiceConfigs)
+            foreach (var serviceConfig in serviceConfigs)
             {
                 sb.AppendLine(serviceConfig.ServiceName);
                 if (serviceConfig is ServiceLikeServiceConfig)
@@ -86,6 +86,7 @@ namespace MLocati.ServicesControl
                 using (var configWriter = new StreamWriter(configStream, Encoding.UTF8))
                 {
                     configWriter.Write(sb.ToString());
+                    configStream.Flush();
                 }
             }
             this._serviceConfigs = serviceConfigs;
