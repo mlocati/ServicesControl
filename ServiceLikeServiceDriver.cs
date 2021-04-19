@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 
@@ -126,6 +126,7 @@ namespace MLocati.ServicesControl
             {
                 return;
             }
+            this.Process.Refresh();
             if (!this.Process.HasExited)
             {
                 if (AttachConsole((UInt32)this.Process.Id))
@@ -143,11 +144,38 @@ namespace MLocati.ServicesControl
                         SetConsoleCtrlHandler(null, false);
                         FreeConsole();
                     }
+                    this.Process.Refresh();
                 }
-                if (!this.Process.HasExited)
+            }
+            if (!this.Process.HasExited)
+            {
+                if (this.Process.CloseMainWindow())
                 {
-                    this.Process.Kill();
+                    this.Process.WaitForExit(1000);
+                    this.Process.Refresh();
                 }
+            }
+            if (!this.Process.HasExited)
+            {
+                var taskKill = Path.Combine(Environment.SystemDirectory, "taskkill.exe");
+                if (File.Exists(taskKill))
+                {
+                    var killer = new Process();
+                    killer.StartInfo.FileName = taskKill;
+                    killer.StartInfo.Arguments = $"/PID {this.Process.Id} /T /F";
+                    killer.StartInfo.UseShellExecute = false;
+                    killer.StartInfo.CreateNoWindow = true;
+                    killer.StartInfo.ErrorDialog = false;
+                    killer.Start();
+                    killer.WaitForExit();
+                    this.Process.Refresh();
+                }
+            }
+            if (!this.Process.HasExited)
+            {
+                this.Process.Kill();
+                this.Process.WaitForExit(1000);
+                this.Process.Refresh();
             }
             this.Process.Dispose();
             this.Process = null;
