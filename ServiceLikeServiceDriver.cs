@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.ServiceProcess;
 
 namespace MLocati.ServicesControl
@@ -65,7 +66,10 @@ namespace MLocati.ServicesControl
             process.StartInfo.RedirectStandardError = true;
             process.OutputDataReceived += Process_OutputDataReceived;
             process.ErrorDataReceived += Process_ErrorDataReceived;
-            process.Start();
+            using (var impersonationContext = WindowsIdentity.GetCurrent().Impersonate())
+            {
+                process.Start();
+            }
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             this.Process = process;
