@@ -22,24 +22,37 @@ namespace MLocati.ServicesControl
             this.ServiceController = serviceController;
         }
 
+        private string QuotedServiceName
+        {
+            get
+            {
+                var result = this.ServiceController.ServiceName.Replace("^", "^^").Replace("\"", "^\"");
+                if (result.IndexOf(' ') >= 0)
+                {
+                    result = $"\"{result}\"";
+                }
+
+                return result;
+            }
+        }
         public void Start()
         {
-            this.ServiceController.Start();
+            Program.SystemServiceTriggerInvoker.run($"start {this.QuotedServiceName}");
         }
 
         public void Pause()
         {
-            this.ServiceController.Pause();
+            Program.SystemServiceTriggerInvoker.run($"pause {this.QuotedServiceName}");
         }
 
         public void Continue()
         {
-            this.ServiceController.Continue();
+            Program.SystemServiceTriggerInvoker.run($"continue {this.QuotedServiceName}");
         }
 
         public void Stop()
         {
-            this.ServiceController.Stop();
+            Program.SystemServiceTriggerInvoker.run($"stop {this.QuotedServiceName}");
         }
 
         public void Refresh()

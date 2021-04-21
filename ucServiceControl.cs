@@ -214,7 +214,6 @@ namespace MLocati.ServicesControl
                         this.Driver.Refresh();
                     }
                     this.DoAction(ServiceControllerStatus.Stopped, this.Driver.Start);
-                    return;
                 }
             }
         }

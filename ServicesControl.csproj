@@ -73,6 +73,7 @@
     <Compile Include="frmProgramOutputViewer.Designer.cs">
       <DependentUpon>frmProgramOutputViewer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Piper.cs" />
     <Compile Include="ProgramOutput.cs" />
     <Compile Include="ServiceDriver.cs" />
     <Compile Include="ServiceConfig.cs" />
@@ -93,6 +94,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLikeServiceDriver.cs" />
     <Compile Include="SystemServiceDriver.cs" />
+    <Compile Include="SystemServiceTrigger.cs" />
+    <Compile Include="SystemServiceTriggerInvoker.cs" />
     <Compile Include="UAC.cs" />
     <Compile Include="ucServiceControl.cs">
       <SubType>UserControl</SubType>
