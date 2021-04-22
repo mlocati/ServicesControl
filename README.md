@@ -35,8 +35,7 @@ For example, use the following code to add NGINX and two PHP-FPM workers:
       try_files $fastcgi_script_name =404;
       fastcgi_index index.php;
       include fastcgi.conf;
-      fastcgi_param PHP_VALUE "memory_limit = 256M";
-      fastcgi_param PHP_VALUE "max_execution_time = 300";
+      fastcgi_param PHP_VALUE "memory_limit = 256M;\n max_execution_time = 300";
       fastcgi_read_timeout 300;
       fastcgi_pass php;
    }
