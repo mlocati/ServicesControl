@@ -31,7 +31,7 @@ For example, use the following code to add NGINX and two PHP-FPM workers:
       try_files $uri $uri/ /index.php?$query_string;
    }
    location ~ \.php$ {
-      keepalive_timeout 0;
+      fastcgi_keep_conn off;
       fastcgi_split_path_info ^(.+\.php)(/.+)$;
       try_files $fastcgi_script_name =404;
       fastcgi_index index.php;
